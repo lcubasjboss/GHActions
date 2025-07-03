@@ -1,19 +1,19 @@
 # This PowerShell script creates an Excel file with two worksheets.
-# It also handles the installation of its required 'Import-Excel' module.
+# It also handles the installation of its required 'Import-Excel' module
+# and calculates its own execution duration.
 
 param(
     [Parameter(Mandatory=$true)] # The environment name is a mandatory input.
-    [string]$Environment,
-
-    [Parameter(Mandatory=$true)] # The workflow run start time (ISO 8601 string) is a mandatory input.
-    [string]$RunStartedAt
+    [string]$Environment
 )
+
+# Record the start time of the script execution for duration calculation.
+$scriptStartTime = Get-Date
 
 # --- Dependency Installation ---
 Write-Host "Checking for and installing required PowerShell modules..."
 
 # Check if PowerShellGet is installed and up to date.
-# This is often needed before installing other modules.
 if (-not (Get-Module -ListAvailable -Name PowerShellGet)) {
     Write-Host "PowerShellGet module not found. Installing..."
     try {
@@ -72,29 +72,21 @@ $envData | Export-Excel -Path $excelFilePath `
                        -ClearSheet `
                        -AutoFit
 
-# --- Worksheet 2: Pipeline Duration ---
-# Calculate the duration from the workflow's start time to the current script execution time.
-try {
-    $workflowStartTime = [DateTime]::Parse($RunStartedAt, ([System.Globalization.CultureInfo]::InvariantCulture), [System.Globalization.DateTimeStyles]::RoundtripKind)
-    $currentScriptTime = Get-Date
-
-    $durationSeconds = ($currentScriptTime - $workflowStartTime).TotalSeconds
-    $durationString = "$([math]::Round($durationSeconds, 2)) seconds"
-}
-catch {
-    Write-Warning "Could not parse RunStartedAt parameter: $($_.Exception.Message). Setting duration to 'N/A'."
-    $durationString = "N/A (Error calculating duration)"
-}
+# --- Worksheet 2: Script Execution Duration ---
+# Calculate the duration from the script's start time to now.
+$scriptEndTime = Get-Date
+$durationSeconds = ($scriptEndTime - $scriptStartTime).TotalSeconds
+$durationString = "$([math]::Round($durationSeconds, 2)) seconds"
 
 # Prepare the data for the second worksheet.
 $durationData = @(
-    @{ "Duration of the pipeline execution (seconds)" = $durationString }
+    @{ "Duration of the PowerShell script execution (seconds)" = $durationString }
 )
 
-Write-Host "Creating 'Pipeline Duration' worksheet..."
+Write-Host "Creating 'Script Execution Duration' worksheet..."
 $durationData | Export-Excel -Path $excelFilePath `
-                           -WorksheetName "Pipeline Duration" `
-                           -TableName "PipelineDurationDetails" `
+                           -WorksheetName "Script Execution Duration" `
+                           -TableName "ScriptDurationDetails" `
                            -TableStyle Light9 `
                            -AutoFit `
                            -Append
