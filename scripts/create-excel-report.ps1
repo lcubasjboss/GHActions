@@ -45,8 +45,8 @@ try {
     Remove-Module -Name PowerShellGet -ErrorAction SilentlyContinue -Force
     Uninstall-Module -Name PowerShellGet -ErrorAction SilentlyContinue -Force
 
-    # Install PowerShellGet with verbose logging
-    Install-Module -Name PowerShellGet -Force -Scope CurrentUser -AllowClobber -Repository PSGallery -ErrorAction Stop -Verbose
+    # Install PowerShellGet with  logging
+    Install-Module -Name PowerShellGet -Force -Scope CurrentUser -AllowClobber -Repository PSGallery -ErrorAction Stop -
     Write-Host "PowerShellGet installed/updated successfully."
 }
 catch {
@@ -59,12 +59,12 @@ Write-Host "Attempting to find and install ImportExcel module..."
 try {
     # First, try to find the module to get diagnostic info.
     Write-Host "Searching for ImportExcel in PSGallery..."
-    $foundModule = Find-Module -Name ImportExcel -Repository PSGallery -ErrorAction SilentlyContinue -Verbose
+    $foundModule = Find-Module -Name ImportExcel -Repository PSGallery -ErrorAction SilentlyContinue -
 
     if ($foundModule) {
         Write-Host "ImportExcel found in PSGallery. Version: $($foundModule.Version)"
         # If found, proceed with installation.
-        Install-Module -Name ImportExcel -Force -Scope CurrentUser -Repository PSGallery -ErrorAction Stop -Verbose
+        Install-Module -Name ImportExcel -Force -Scope CurrentUser -Repository PSGallery -ErrorAction Stop -
         Write-Host "ImportExcel installed successfully."
     } else {
         Write-Error "ImportExcel module was NOT found in PSGallery. This indicates a deeper issue with the repository or network."
@@ -103,7 +103,7 @@ $envData | Export-Excel -Path $excelFilePath `
                        -TableName "EnvironmentDetails" `
                        -TableStyle Light9 `
                        -ClearSheet `
-                       -AutoFit
+                       -AutoSize
 
 # --- Worksheet 2: Git Branch and Commit Info ---
 # Get the short version of the Git commit SHA (first 7 characters).
