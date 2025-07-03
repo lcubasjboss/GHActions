@@ -59,7 +59,7 @@ function Install-ModuleIfMissing {
             Write-Host "$ModuleName installed successfully."
         }
         catch {
-            Write-Error "Failed to install/update $ModuleName: $($_.Exception.Message)"
+            Write-Error "Failed to install/update $ModuleName : $($_.Exception.Message)"
             exit 1 # Exit with an error code if installation fails
         }
     } else {
