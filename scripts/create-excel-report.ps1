@@ -16,11 +16,6 @@ param(
 # --- Dependency Installation ---
 Write-Host "Checking for and installing required PowerShell modules..."
 
-# Ensure TLS 1.2 is used for connections to the PowerShell Gallery.
-Write-Host "Setting TLS 1.2 security protocol..."
-[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 | [Net.SecurityProtocolType]::Tls11 | [Net.SecurityProtocolType]::Tls
-Write-Host "TLS security protocol set."
-
 # Ensure PSGallery is registered as a trusted repository.
 Write-Host "Checking/Registering PSGallery repository..."
 try {
@@ -113,7 +108,7 @@ $envData | Export-Excel -Path $excelFilePath `
                        -TableName "EnvironmentDetails" `
                        -TableStyle Light9 `
                        -ClearSheet `
-                       -AutoSize # Changed from -AutoFit
+                       -AutoSize
 
 # --- Worksheet 2: Git Branch and Commit Info ---
 # Get the short version of the Git commit SHA (first 7 characters).
@@ -132,7 +127,7 @@ $gitInfoData | Export-Excel -Path $excelFilePath `
                            -WorksheetName "Git Info" `
                            -TableName "GitDetails" `
                            -TableStyle Light9 `
-                           -AutoSize ` # Changed from -AutoFit
+                           -AutoSize `
                            -Append
 
 Write-Host "Excel file '$excelFilePath' created successfully and ready for upload."
