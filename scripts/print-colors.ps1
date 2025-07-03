@@ -1,3 +1,8 @@
-Write-Host "Esta es la primera línea en azul." -ForegroundColor Blue
-Write-Host "Esta es la segunda línea en rojo." -ForegroundColor Red
-Write-Host "Esta es la tercera línea en amarillo." -ForegroundColor Yellow
+Write-Host "Esta es la primera línea en azul." # Esto se mostrará en blanco en el log de GitHub Actions
+Write-Host "Esta es la segunda línea en rojo." # Esto se mostrará en blanco en el log de GitHub Actions
+Write-Host "Esta es la tercera línea en amarillo." # Esto se mostrará en blanco en el log de GitHub Actions
+
+# Usamos comandos de workflow para mostrar mensajes con colores en el log de GitHub Actions
+Write-Host "::notice title=Línea Azul::Esta es la primera línea que se verá con un fondo azul claro en el log de GitHub Actions."
+Write-Host "::warning title=Línea Roja::Esta es la segunda línea que se verá con un fondo amarillo en el log de GitHub Actions (advertencia)."
+Write-Host "::error title=Línea Amarilla::Esta es la tercera línea que se verá con un fondo rojo en el log de GitHub Actions (error)."
