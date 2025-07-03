@@ -1,20 +1,9 @@
-# This workflow is named "Run PowerShell Script and Create Excel"
-name: Run PowerShell Script and Create Excel
+# This workflow is named "Generate Pipeline & Repo Info Excel"
+name: Generate Pipeline & Repo Info Excel
 
 # This workflow can be triggered manually from the GitHub Actions UI.
-# It defines an input parameter 'environment'.
 on:
   workflow_dispatch:
-    inputs:
-      environment:
-        description: 'Choose the target environment' # Description for the input
-        required: true                             # This input is mandatory
-        type: choice                               # The input will be a dropdown choice
-        options:                                   # Available options for the environment
-          - 'development'
-          - 'staging'
-          - 'production'
-        default: 'development'                     # Default selected option
 
 # Define a single job named 'create-excel-report'
 jobs:
@@ -32,8 +21,6 @@ jobs:
       # Step 2: Cache PowerShell modules.
       # This step checks if the required PowerShell modules are already in cache.
       # If found, it restores them, significantly speeding up subsequent runs.
-      # The 'key' combines the OS and a hash of the workflow file (or a specific module list)
-      # to invalidate the cache if dependencies change.
       - name: Cache PowerShell Modules
         uses: actions/cache@v4
         with:
@@ -45,27 +32,26 @@ jobs:
             ${{ runner.os }}-powershell-modules- # Fallback key for partial match
 
       # Step 3: Execute the PowerShell script to create the Excel file.
-      # The PowerShell script itself will now handle the installation of the 'Import-Excel' module.
-      # We are now passing the branch name, full commit SHA, and the run number.
+      # We are now passing the workflow name, run number, repository name, and full commit SHA.
       - name: Execute PowerShell Script and Create Excel
         shell: powershell # Specify PowerShell as the shell for this step
         run: |
           # The script path is relative to the root of your repository.
-          # -Environment: The environment chosen by the user via workflow_dispatch.
-          # -BranchName: The name of the branch that triggered the workflow (e.g., 'main', 'feature/xyz').
-          # -CommitSha: The full SHA of the commit that triggered the workflow.
+          # -PipelineName: The name of the currently running workflow.
           # -RunNumber: The unique incremental number for each workflow run in a repository.
+          # -RepoName: The name of the GitHub repository (e.g., 'my-org/my-repo').
+          # -CommitSha: The full SHA of the commit that triggered the workflow.
           ./scripts/create-excel-report-pipeline.ps1 `
-            -Environment "${{ github.event.inputs.environment }}" `
-            -BranchName "${{ github.ref_name }}" `
-            -CommitSha "${{ github.sha }}" `
-            -RunNumber "${{ github.run_number }}"
+            -PipelineName "${{ github.workflow }}" `
+            -RunNumber "${{ github.run_number }}" `
+            -RepoName "${{ github.repository }}" `
+            -CommitSha "${{ github.sha }}"
 
       # Step 4: Upload the generated Excel file as a workflow artifact.
-      # This makes the 'environment_report.xlsx' file available for download from the GitHub Actions UI.
+      # This makes the 'pipeline_repo_info.xlsx' file available for download from the GitHub Actions UI.
       - name: Upload Excel File as Artifact
         uses: actions/upload-artifact@v4 # Use the upload-artifact action
         with:
-          name: environment-report-excel # The name of the artifact (how it will appear for download)
-          path: environment_report.xlsx # The path to the file to upload (must match the file name in your script)
+          name: pipeline-repo-info-excel # The name of the artifact (how it will appear for download)
+          path: pipeline_repo_info.xlsx # The path to the file to upload (must match the file name in your script)
           retention-days: 5 # How many days to retain this artifact before it's automatically deleted

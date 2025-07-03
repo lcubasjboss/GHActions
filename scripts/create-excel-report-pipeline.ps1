@@ -1,20 +1,20 @@
-# This PowerShell script creates an Excel file with two worksheets.
-# It handles the installation of its required 'ImportExcel' module (leveraging caching for speed).
-# The first worksheet includes environment and branch info.
-# The second worksheet includes pipeline run number and short Git commit.
+# This PowerShell script creates an Excel file with two worksheets:
+# 1. 'Pipeline Info' with Pipeline Name and Number of Execution.
+# 2. 'Repo Info' with Repository Name and Git SHA Short Version.
+# It also handles the installation of its required 'ImportExcel' module (leveraging caching for speed).
 
 param(
-    [Parameter(Mandatory=$true)] # The environment name is a mandatory input.
-    [string]$Environment,
+    [Parameter(Mandatory=$true)] # The name of the pipeline/workflow.
+    [string]$PipelineName,
 
-    [Parameter(Mandatory=$true)] # The GitHub branch name is a mandatory input.
-    [string]$BranchName,
+    [Parameter(Mandatory=$true)] # The GitHub Actions run number.
+    [int]$RunNumber,
 
-    [Parameter(Mandatory=$true)] # The full Git commit SHA is a mandatory input.
-    [string]$CommitSha,
+    [Parameter(Mandatory=$true)] # The name of the GitHub repository.
+    [string]$RepoName,
 
-    [Parameter(Mandatory=$true)] # The GitHub Actions run number is a mandatory input.
-    [int]$RunNumber
+    [Parameter(Mandatory=$true)] # The full Git commit SHA.
+    [string]$CommitSha
 )
 
 # --- Dependency Installation ---
@@ -77,49 +77,45 @@ Import-Module -Name ImportExcel -ErrorAction Stop
 Write-Host "ImportExcel module loaded."
 
 # Define the name and path for the output Excel file.
-$excelFilePath = "environment_report.xlsx"
+$excelFilePath = "pipeline_repo_info.xlsx"
 
 Write-Host "Starting Excel file creation at $excelFilePath..."
 
-# --- Worksheet 1: Environment and Branch Info ---
-# Get the current timestamp when this script is executed.
-$scriptExecutionTimeStamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-
+# --- Worksheet 1: Pipeline Info ---
 # Prepare the data for the first worksheet.
-$envBranchData = @(
+$pipelineInfoData = @(
     @{
-        "Environment Name"   = $Environment;
-        "Branch Used"        = $BranchName;
-        "Timestamp"          = $scriptExecutionTimeStamp
+        "Pipeline Name"      = $PipelineName;
+        "Number of Execution" = $RunNumber
     }
 )
 
-Write-Host "Creating 'Environment & Branch Info' worksheet..."
-$envBranchData | Export-Excel -Path $excelFilePath `
-                             -WorksheetName "Environment & Branch Info" `
-                             -TableName "EnvBranchDetails" `
-                             -TableStyle Light9 `
-                             -ClearSheet `
-                             -AutoSize
+Write-Host "Creating 'Pipeline Info' worksheet..."
+$pipelineInfoData | Export-Excel -Path $excelFilePath `
+                                 -WorksheetName "Pipeline Info" `
+                                 -TableName "PipelineDetails" `
+                                 -TableStyle Light9 `
+                                 -ClearSheet `
+                                 -AutoSize
 
-# --- Worksheet 2: Pipeline Run and Git Commit Info ---
+# --- Worksheet 2: Repo Info ---
 # Get the short version of the Git commit SHA (first 7 characters).
 $shortCommitSha = $CommitSha.Substring(0, [System.Math]::Min(7, $CommitSha.Length))
 
 # Prepare the data for the second worksheet.
-$pipelineGitData = @(
+$repoInfoData = @(
     @{
-        "Pipeline Run Number" = $RunNumber;
-        "Short Git Commit"    = $shortCommitSha
+        "Repository Name"       = $RepoName;
+        "Git SHA Short Version" = $shortCommitSha
     }
 )
 
-Write-Host "Creating 'Pipeline & Git Info' worksheet..."
-$pipelineGitData | Export-Excel -Path $excelFilePath `
-                               -WorksheetName "Pipeline & Git Info" `
-                               -TableName "PipelineGitDetails" `
-                               -TableStyle Light9 `
-                               -AutoSize `
-                               -Append
+Write-Host "Creating 'Repo Info' worksheet..."
+$repoInfoData | Export-Excel -Path $excelFilePath `
+                             -WorksheetName "Repo Info" `
+                             -TableName "RepoDetails" `
+                             -TableStyle Light9 `
+                             -AutoSize `
+                             -Append
 
 Write-Host "Excel file '$excelFilePath' created successfully and ready for upload."
