@@ -3,18 +3,6 @@
 # 2. 'Repo Info' with Repository Name and Git SHA Short Version.
 # It also handles the installation of its required 'ImportExcel' module (leveraging caching for speed).
 
-# Definir códigos ANSI para los colores
-$Blue = "`e[34m"
-$Red = "`e[31m"
-$Yellow = "`e[33m"
-$Reset = "`e[0m" # Código para resetear el color a por defecto
-
-# Imprimir las líneas usando los códigos ANSI
-Write-Output "${Blue}Esta es la primera línea en azul.${Reset}"
-Write-Output "${Red}Esta es la segunda línea en rojo.${Reset}"
-Write-Output "${Yellow}Esta es la tercera línea en amarillo.${Reset}"
-
-
 param(
     [Parameter(Mandatory=$true)] # The name of the pipeline/workflow.
     [string]$PipelineName,
@@ -31,6 +19,17 @@ param(
     [Parameter(Mandatory=$true)] # The chosen environment.
     [string]$Environment # <--- Added Environment parameter
 )
+
+# Definir códigos ANSI para los colores
+$Blue = "`e[34m"
+$Red = "`e[31m"
+$Yellow = "`e[33m"
+$Reset = "`e[0m" # Código para resetear el color a por defecto
+
+# Imprimir las líneas usando los códigos ANSI
+Write-Output "${Blue}Esta es la primera línea en azul.${Reset}"
+Write-Output "${Red}Esta es la segunda línea en rojo.${Reset}"
+Write-Output "${Yellow}Esta es la tercera línea en amarillo.${Reset}"
 
 # --- Configure ANSI Output ---
 # Ensure PowerShell is configured to interpret ANSI escape sequences.
