@@ -3,6 +3,18 @@
 # 2. 'Repo Info' with Repository Name and Git SHA Short Version.
 # It also handles the installation of its required 'ImportExcel' module (leveraging caching for speed).
 
+# Definir códigos ANSI para los colores
+$Blue = "`e[34m"
+$Red = "`e[31m"
+$Yellow = "`e[33m"
+$Reset = "`e[0m" # Código para resetear el color a por defecto
+
+# Imprimir las líneas usando los códigos ANSI
+Write-Output "${Blue}Esta es la primera línea en azul.${Reset}"
+Write-Output "${Red}Esta es la segunda línea en rojo.${Reset}"
+Write-Output "${Yellow}Esta es la tercera línea en amarillo.${Reset}"
+
+
 param(
     [Parameter(Mandatory=$true)] # The name of the pipeline/workflow.
     [string]$PipelineName,
@@ -88,7 +100,7 @@ Import-Module -Name ImportExcel -ErrorAction Stop
 # Define the name and path for the output Excel file.
 $excelFilePath = "pipeline_repo_info.xlsx"
 
-Write-Output "`x1b[34mStarting Excel file creation at $excelFilePath...`x1b[0m" # <--- Changed to Write-Output
+Write-Output "${Red}Starting Excel file creation at $excelFilePath...${Reset}" # <--- Changed to Write-Output
 
 # --- Worksheet 1: Pipeline Info ---
 # Prepare the data for the first worksheet, explicitly casting to PSCustomObject.
@@ -100,7 +112,7 @@ $pipelineInfoData = @(
     }
 )
 
-Write-Output "`x1b[34mCreating 'Pipeline Info' worksheet...`x1b[0m" # <--- Changed to Write-Output
+Write-Output "${Red}Creating 'Pipeline Info' worksheet...${Reset}" # <--- Changed to Write-Output
 $pipelineInfoData | Export-Excel -Path $excelFilePath `
                                  -WorksheetName "Pipeline Info" `
                                  -TableName "PipelineDetails" `
@@ -120,7 +132,7 @@ $repoInfoData = @(
     }
 )
 
-Write-Output "`x1b[34mCreating 'Repo Info' worksheet...`x1b[0m" # <--- Changed to Write-Output
+Write-Output "${Blue}Creating 'Repo Info' worksheet...${Reset}" # <--- Changed to Write-Output
 $repoInfoData | Export-Excel -Path $excelFilePath `
                              -WorksheetName "Repo Info" `
                              -TableName "RepoDetails" `
@@ -128,4 +140,5 @@ $repoInfoData | Export-Excel -Path $excelFilePath `
                              -AutoSize `
                              -Append
 
-Write-Output "`x1b[34mExcel file '$excelFilePath' created successfully and ready for upload.`x1b[0m" # <--- Changed to Write-Output
+Write-Output "${Blue}Excel file '$excelFilePath' created successfully and ready for upload.${Reset}" # <--- Changed to Write-Output
+
