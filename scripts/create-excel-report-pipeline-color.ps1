@@ -20,6 +20,12 @@ param(
     [string]$Environment # <--- Added Environment parameter
 )
 
+# --- Configure ANSI Output ---
+# Ensure PowerShell is configured to interpret ANSI escape sequences.
+# This is typically needed for colored output in non-interactive sessions like CI/CD.
+$PSStyle.OutputRendering = 'Ansi'
+Write-Host "ANSI output rendering enabled."
+
 # --- Dependency Installation ---
 Write-Host "Checking for and installing required PowerShell modules..."
 
@@ -76,13 +82,13 @@ Install-ModuleIfMissing -ModuleName PowerShellGet
 Install-ModuleIfMissing -ModuleName ImportExcel
 
 # Import the module for use in the current session.
-Write-Host "`e[34mImportExcel module loaded.`e[0m" # <--- Modified line
+Write-Output "`x1b[34mImportExcel module loaded.`x1b[0m" # <--- Changed to Write-Output
 Import-Module -Name ImportExcel -ErrorAction Stop
 
 # Define the name and path for the output Excel file.
 $excelFilePath = "pipeline_repo_info.xlsx"
 
-Write-Host "`e[34mStarting Excel file creation at $excelFilePath...`e[0m" # <--- Modified line
+Write-Output "`x1b[34mStarting Excel file creation at $excelFilePath...`x1b[0m" # <--- Changed to Write-Output
 
 # --- Worksheet 1: Pipeline Info ---
 # Prepare the data for the first worksheet, explicitly casting to PSCustomObject.
@@ -90,11 +96,11 @@ $pipelineInfoData = @(
     [PSCustomObject]@{
         "Pipeline Name"       = $PipelineName;
         "Number of Execution" = $RunNumber;
-        "Environment"         = $Environment # <--- Added Environment column
+        "Environment"         = $Environment
     }
 )
 
-Write-Host "`e[34mCreating 'Pipeline Info' worksheet...`e[0m"
+Write-Output "`x1b[34mCreating 'Pipeline Info' worksheet...`x1b[0m" # <--- Changed to Write-Output
 $pipelineInfoData | Export-Excel -Path $excelFilePath `
                                  -WorksheetName "Pipeline Info" `
                                  -TableName "PipelineDetails" `
@@ -114,7 +120,7 @@ $repoInfoData = @(
     }
 )
 
-Write-Host "`e[34mCreating 'Repo Info' worksheet...`e[0m"
+Write-Output "`x1b[34mCreating 'Repo Info' worksheet...`x1b[0m" # <--- Changed to Write-Output
 $repoInfoData | Export-Excel -Path $excelFilePath `
                              -WorksheetName "Repo Info" `
                              -TableName "RepoDetails" `
@@ -122,4 +128,4 @@ $repoInfoData | Export-Excel -Path $excelFilePath `
                              -AutoSize `
                              -Append
 
-Write-Host "`e[34mExcel file '$excelFilePath' created successfully and ready for upload.`e[0m" # <--- Modified line
+Write-Output "`x1b[34mExcel file '$excelFilePath' created successfully and ready for upload.`x1b[0m" # <--- Changed to Write-Output
