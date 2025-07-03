@@ -1,5 +1,5 @@
 # This PowerShell script creates an Excel file with two worksheets.
-# It also handles the installation of its required 'Import-Excel' module.
+# It also handles the installation of its required 'ImportExcel' module.
 # The second worksheet will contain the GitHub branch name and the short Git commit SHA.
 
 param(
@@ -54,31 +54,31 @@ catch {
     exit 1 # Exit with an error code if installation fails
 }
 
-# Now, try to find and install Import-Excel.
-Write-Host "Attempting to find and install Import-Excel module..."
+# Now, try to find and install ImportExcel.
+Write-Host "Attempting to find and install ImportExcel module..."
 try {
     # First, try to find the module to get diagnostic info.
-    Write-Host "Searching for Import-Excel in PSGallery..."
-    $foundModule = Find-Module -Name Import-Excel -Repository PSGallery -ErrorAction SilentlyContinue -Verbose
+    Write-Host "Searching for ImportExcel in PSGallery..."
+    $foundModule = Find-Module -Name ImportExcel -Repository PSGallery -ErrorAction SilentlyContinue -Verbose
 
     if ($foundModule) {
-        Write-Host "Import-Excel found in PSGallery. Version: $($foundModule.Version)"
+        Write-Host "ImportExcel found in PSGallery. Version: $($foundModule.Version)"
         # If found, proceed with installation.
-        Install-Module -Name Import-Excel -Force -Scope CurrentUser -Repository PSGallery -ErrorAction Stop -Verbose
-        Write-Host "Import-Excel installed successfully."
+        Install-Module -Name ImportExcel -Force -Scope CurrentUser -Repository PSGallery -ErrorAction Stop -Verbose
+        Write-Host "ImportExcel installed successfully."
     } else {
-        Write-Error "Import-Excel module was NOT found in PSGallery. This indicates a deeper issue with the repository or network."
+        Write-Error "ImportExcel module was NOT found in PSGallery. This indicates a deeper issue with the repository or network."
         exit 1 # Exit if the module cannot be found
     }
 }
 catch {
-    Write-Error "Failed to install Import-Excel: $($_.Exception.Message)"
+    Write-Error "Failed to install ImportExcel: $($_.Exception.Message)"
     exit 1 # Exit with an error code if installation fails
 }
 
 # Import the module for use in the current session.
-Import-Module -Name Import-Excel -ErrorAction Stop
-Write-Host "Import-Excel module loaded."
+Import-Module -Name ImportExcel -ErrorAction Stop
+Write-Host "ImportExcel module loaded."
 
 # Define the name and path for the output Excel file.
 $excelFilePath = "environment_report.xlsx"
