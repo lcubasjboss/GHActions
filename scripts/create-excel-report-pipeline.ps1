@@ -59,7 +59,7 @@ function Install-ModuleIfMissing {
             Write-Host "$ModuleName installed successfully."
         }
         catch {
-            Write-Error "Failed to install/update $ModuleName : $($_.Exception.Message)"
+            Write-Error "Failed to install/update $ModuleName: $($_.Exception.Message)"
             exit 1 # Exit with an error code if installation fails
         }
     } else {
@@ -82,10 +82,10 @@ $excelFilePath = "pipeline_repo_info.xlsx"
 Write-Host "Starting Excel file creation at $excelFilePath..."
 
 # --- Worksheet 1: Pipeline Info ---
-# Prepare the data for the first worksheet.
+# Prepare the data for the first worksheet, explicitly casting to PSCustomObject.
 $pipelineInfoData = @(
-    @{
-        "Pipeline Name"      = $PipelineName;
+    [PSCustomObject]@{ # <--- FIX: Added [PSCustomObject] cast here
+        "Pipeline Name"       = $PipelineName;
         "Number of Execution" = $RunNumber
     }
 )
@@ -102,9 +102,9 @@ $pipelineInfoData | Export-Excel -Path $excelFilePath `
 # Get the short version of the Git commit SHA (first 7 characters).
 $shortCommitSha = $CommitSha.Substring(0, [System.Math]::Min(7, $CommitSha.Length))
 
-# Prepare the data for the second worksheet.
+# Prepare the data for the second worksheet, explicitly casting to PSCustomObject.
 $repoInfoData = @(
-    @{
+    [PSCustomObject]@{ # <--- FIX: Added [PSCustomObject] cast here
         "Repository Name"       = $RepoName;
         "Git SHA Short Version" = $shortCommitSha
     }
