@@ -29,29 +29,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # --- DEBUG STEP: Verify github.run.started_at value ---
-      - name: Debug - Print workflow start time
-        shell: powershell
-        run: |
-          Write-Host "Value of github.run.started_at: '${{ github.run.started_at }}'"
-          # Also check its type and length to be sure
-          $runStartedAt = "${{ github.run.started_at }}"
-          Write-Host "Type of github.run.started_at: $($runStartedAt.GetType().Name)"
-          Write-Host "Length of github.run.started_at: $($runStartedAt.Length)"
-
       # Step 2: Execute the PowerShell script to create the Excel file.
       # The PowerShell script itself will now handle the installation of the 'Import-Excel' module.
+      # We are now passing the branch name and the full commit SHA.
       - name: Execute PowerShell Script and Create Excel
         shell: powershell # Specify PowerShell as the shell for this step
         run: |
           # The script path is relative to the root of your repository.
-          # We pass two parameters to the PowerShell script:
           # -Environment: The environment chosen by the user via workflow_dispatch.
-          # -RunStartedAt: The exact timestamp when the GitHub Actions workflow run started.
-          # This allows the PowerShell script to calculate the duration from workflow start.
+          # -BranchName: The name of the branch that triggered the workflow (e.g., 'main', 'feature/xyz').
+          # -CommitSha: The full SHA of the commit that triggered the workflow.
           ./scripts/create-excel-report.ps1 `
             -Environment "${{ github.event.inputs.environment }}" `
-            -RunStartedAt "${{ github.run.started_at }}"
+            -BranchName "${{ github.ref_name }}" `
+            -CommitSha "${{ github.sha }}"
 
       # Step 3: Upload the generated Excel file as a workflow artifact.
       # This makes the 'environment_report.xlsx' file available for download from the GitHub Actions UI.

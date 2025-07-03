@@ -1,14 +1,17 @@
 # This PowerShell script creates an Excel file with two worksheets.
-# It also handles the installation of its required 'Import-Excel' module
-# and calculates its own execution duration.
+# It also handles the installation of its required 'Import-Excel' module.
+# The second worksheet will contain the GitHub branch name and the short Git commit SHA.
 
 param(
     [Parameter(Mandatory=$true)] # The environment name is a mandatory input.
-    [string]$Environment
-)
+    [string]$Environment,
 
-# Record the start time of the script execution for duration calculation.
-$scriptStartTime = Get-Date
+    [Parameter(Mandatory=$true)] # The GitHub branch name is a mandatory input.
+    [string]$BranchName,
+
+    [Parameter(Mandatory=$true)] # The full Git commit SHA is a mandatory input.
+    [string]$CommitSha
+)
 
 # --- Dependency Installation ---
 Write-Host "Checking for and installing required PowerShell modules..."
@@ -72,21 +75,22 @@ $envData | Export-Excel -Path $excelFilePath `
                        -ClearSheet `
                        -AutoFit
 
-# --- Worksheet 2: Script Execution Duration ---
-# Calculate the duration from the script's start time to now.
-$scriptEndTime = Get-Date
-$durationSeconds = ($scriptEndTime - $scriptStartTime).TotalSeconds
-$durationString = "$([math]::Round($durationSeconds, 2)) seconds"
+# --- Worksheet 2: Git Branch and Commit Info ---
+# Get the short version of the Git commit SHA (first 7 characters).
+$shortCommitSha = $CommitSha.Substring(0, [System.Math]::Min(7, $CommitSha.Length))
 
 # Prepare the data for the second worksheet.
-$durationData = @(
-    @{ "Duration of the PowerShell script execution (seconds)" = $durationString }
+$gitInfoData = @(
+    @{
+        "GitHub Branch Name" = $BranchName;
+        "Short Git Commit"   = $shortCommitSha
+    }
 )
 
-Write-Host "Creating 'Script Execution Duration' worksheet..."
-$durationData | Export-Excel -Path $excelFilePath `
-                           -WorksheetName "Script Execution Duration" `
-                           -TableName "ScriptDurationDetails" `
+Write-Host "Creating 'Git Info' worksheet..."
+$gitInfoData | Export-Excel -Path $excelFilePath `
+                           -WorksheetName "Git Info" `
+                           -TableName "GitDetails" `
                            -TableStyle Light9 `
                            -AutoFit `
                            -Append
