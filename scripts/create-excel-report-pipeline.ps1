@@ -79,7 +79,7 @@ Write-Host "ImportExcel module loaded."
 # Define the name and path for the output Excel file.
 $excelFilePath = "pipeline_repo_info.xlsx"
 
-Write-Host "Starting Excel file creation at $excelFilePath..."
+Write-Host "Starting Excel file creation at $excelFilePath..." -ForegroundColor Blue
 
 # --- Worksheet 1: Pipeline Info ---
 # Prepare the data for the first worksheet, explicitly casting to PSCustomObject.
@@ -90,7 +90,7 @@ $pipelineInfoData = @(
     }
 )
 
-Write-Host "Creating 'Pipeline Info' worksheet..."
+Write-Host "Creating 'Pipeline Info' worksheet..." -ForegroundColor Blue
 $pipelineInfoData | Export-Excel -Path $excelFilePath `
                                  -WorksheetName "Pipeline Info" `
                                  -TableName "PipelineDetails" `
@@ -118,4 +118,4 @@ $repoInfoData | Export-Excel -Path $excelFilePath `
                              -AutoSize `
                              -Append
 
-Write-Host "Excel file '$excelFilePath' created successfully and ready for upload."
+Write-Host "Excel file '$excelFilePath' created successfully and ready for upload." -ForegroundColor Blue
