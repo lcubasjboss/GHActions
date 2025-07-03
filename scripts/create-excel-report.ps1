@@ -17,16 +17,13 @@ param(
 Write-Host "Checking for and installing required PowerShell modules..."
 
 # Ensure PSGallery is registered as a trusted repository.
-# This often resolves issues where modules cannot be found.
 Write-Host "Checking/Registering PSGallery repository..."
 try {
     # Check if PSGallery is already registered.
     if (-not (Get-PSRepository -Name PSGallery -ErrorAction SilentlyContinue)) {
-        # If not registered, register it.
         Register-PSRepository -Default -InstallationPolicy Trusted -ErrorAction Stop
         Write-Host "PSGallery repository registered and trusted."
     } else {
-        # If registered, ensure it's trusted.
         Set-PSRepository -Name PSGallery -InstallationPolicy Trusted -ErrorAction Stop
         Write-Host "PSGallery repository found and set to trusted."
     }
@@ -40,34 +37,43 @@ catch {
 Write-Host "Available PowerShell Repositories:"
 Get-PSRepository | Format-Table -AutoSize
 
-# Check if PowerShellGet is installed and up to date.
-if (-not (Get-Module -ListAvailable -Name PowerShellGet)) {
-    Write-Host "PowerShellGet module not found. Installing..."
-    try {
-        Install-Module -Name PowerShellGet -Force -Scope CurrentUser -AllowClobber -Repository PSGallery -ErrorAction Stop
-        Write-Host "PowerShellGet installed successfully."
-    }
-    catch {
-        Write-Error "Failed to install PowerShellGet: $($_.Exception.Message)"
-        exit 1 # Exit with an error code if installation fails
-    }
-} else {
-    Write-Host "PowerShellGet module found."
+# Force-reinstall PowerShellGet to ensure it's the latest and not corrupted.
+# This is often the root cause of "No match was found" errors.
+Write-Host "Attempting to ensure PowerShellGet is up-to-date and correctly installed..."
+try {
+    # Try to remove it first to ensure a clean install, ignore errors if it's not found or in use.
+    Remove-Module -Name PowerShellGet -ErrorAction SilentlyContinue -Force
+    Uninstall-Module -Name PowerShellGet -ErrorAction SilentlyContinue -Force
+
+    # Install PowerShellGet with verbose logging
+    Install-Module -Name PowerShellGet -Force -Scope CurrentUser -AllowClobber -Repository PSGallery -ErrorAction Stop -Verbose
+    Write-Host "PowerShellGet installed/updated successfully."
+}
+catch {
+    Write-Error "Failed to install/update PowerShellGet: $($_.Exception.Message)"
+    exit 1 # Exit with an error code if installation fails
 }
 
-# Check if Import-Excel is installed.
-if (-not (Get-Module -ListAvailable -Name Import-Excel)) {
-    Write-Host "Import-Excel module not found. Installing..."
-    try {
-        Install-Module -Name Import-Excel -Force -Scope CurrentUser -Repository PSGallery -ErrorAction Stop
+# Now, try to find and install Import-Excel.
+Write-Host "Attempting to find and install Import-Excel module..."
+try {
+    # First, try to find the module to get diagnostic info.
+    Write-Host "Searching for Import-Excel in PSGallery..."
+    $foundModule = Find-Module -Name Import-Excel -Repository PSGallery -ErrorAction SilentlyContinue -Verbose
+
+    if ($foundModule) {
+        Write-Host "Import-Excel found in PSGallery. Version: $($foundModule.Version)"
+        # If found, proceed with installation.
+        Install-Module -Name Import-Excel -Force -Scope CurrentUser -Repository PSGallery -ErrorAction Stop -Verbose
         Write-Host "Import-Excel installed successfully."
+    } else {
+        Write-Error "Import-Excel module was NOT found in PSGallery. This indicates a deeper issue with the repository or network."
+        exit 1 # Exit if the module cannot be found
     }
-    catch {
-        Write-Error "Failed to install Import-Excel: $($_.Exception.Message)"
-        exit 1 # Exit with an error code if installation fails
-    }
-} else {
-    Write-Host "Import-Excel module found."
+}
+catch {
+    Write-Error "Failed to install Import-Excel: $($_.Exception.Message)"
+    exit 1 # Exit with an error code if installation fails
 }
 
 # Import the module for use in the current session.
