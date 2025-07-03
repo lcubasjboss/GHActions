@@ -44,7 +44,7 @@ jobs:
       # Step 3: Execute the PowerShell script to create the Excel file.
       # We are now passing the workflow name, run number, repository name, full commit SHA, AND the environment.
       - name: Execute PowerShell Script and Create Excel
-        shell: powershell # Specify PowerShell as the shell for this step
+        shell: pwsh # Specify PowerShell as the shell for this step
         run: |
           # The script path is relative to the root of your repository.
           # -PipelineName: The name of the currently running workflow.

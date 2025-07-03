@@ -17,23 +17,18 @@ param(
     [string]$CommitSha,
 
     [Parameter(Mandatory=$true)] # The chosen environment.
-    [string]$Environment # <--- Added Environment parameter
+    [string]$Environment
 )
 
-# Definir códigos ANSI para los colores
-$Blue = "`e[34m"
-$Red = "`e[31m"
-$Yellow = "`e[33m"
-$Reset = "`e[0m" # Código para resetear el color a por defecto
-
-# Imprimir las líneas usando los códigos ANSI
-Write-Output "${Blue}Esta es la primera línea en azul.${Reset}"
-Write-Output "${Red}Esta es la segunda línea en rojo.${Reset}"
-Write-Output "${Yellow}Esta es la tercera línea en amarillo.${Reset}"
-
-# --- Configure ANSI Output ---
+# --- Configure ANSI Output and Define Colors ---
 # Ensure PowerShell is configured to interpret ANSI escape sequences.
 # This is typically needed for colored output in non-interactive sessions like CI/CD.
+$PSStyle.OutputRendering = 'Ansi'
+Write-Host "ANSI output rendering enabled."
+
+# Define ANSI codes for colors
+$Blue = "`e[34m"
+$Reset = "`e[0m" # Code to reset color to default
 
 # --- Dependency Installation ---
 Write-Host "Checking for and installing required PowerShell modules..."
@@ -91,13 +86,13 @@ Install-ModuleIfMissing -ModuleName PowerShellGet
 Install-ModuleIfMissing -ModuleName ImportExcel
 
 # Import the module for use in the current session.
-Write-Output "`x1b[34mImportExcel module loaded.`x1b[0m" # <--- Changed to Write-Output
+Write-Output "${Blue}ImportExcel module loaded.${Reset}" # <--- Using defined color variable
 Import-Module -Name ImportExcel -ErrorAction Stop
 
 # Define the name and path for the output Excel file.
 $excelFilePath = "pipeline_repo_info.xlsx"
 
-Write-Output "${Red}Starting Excel file creation at $excelFilePath...${Reset}" # <--- Changed to Write-Output
+Write-Output "${Blue}Starting Excel file creation at $excelFilePath...${Reset}" # <--- Using defined color variable
 
 # --- Worksheet 1: Pipeline Info ---
 # Prepare the data for the first worksheet, explicitly casting to PSCustomObject.
@@ -109,7 +104,7 @@ $pipelineInfoData = @(
     }
 )
 
-Write-Output "${Red}Creating 'Pipeline Info' worksheet...${Reset}" # <--- Changed to Write-Output
+Write-Output "${Blue}Creating 'Pipeline Info' worksheet...${Reset}" # <--- Using defined color variable
 $pipelineInfoData | Export-Excel -Path $excelFilePath `
                                  -WorksheetName "Pipeline Info" `
                                  -TableName "PipelineDetails" `
@@ -129,7 +124,7 @@ $repoInfoData = @(
     }
 )
 
-Write-Output "${Blue}Creating 'Repo Info' worksheet...${Reset}" # <--- Changed to Write-Output
+Write-Output "${Blue}Creating 'Repo Info' worksheet...${Reset}" # <--- Using defined color variable
 $repoInfoData | Export-Excel -Path $excelFilePath `
                              -WorksheetName "Repo Info" `
                              -TableName "RepoDetails" `
@@ -137,5 +132,4 @@ $repoInfoData | Export-Excel -Path $excelFilePath `
                              -AutoSize `
                              -Append
 
-Write-Output "${Blue}Excel file '$excelFilePath' created successfully and ready for upload.${Reset}" # <--- Changed to Write-Output
-
+Write-Output "${Blue}Excel file '$excelFilePath' created successfully and ready for upload.${Reset}" # <--- Using defined color variable
