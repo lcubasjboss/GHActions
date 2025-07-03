@@ -13,4 +13,4 @@ jobs:
     - name: Run PowerShell Script
       shell: pwsh
       run: |
-        ./print-colors.ps1
+        ./scripts/print-colors.ps1
