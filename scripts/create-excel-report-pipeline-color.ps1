@@ -76,13 +76,13 @@ Install-ModuleIfMissing -ModuleName PowerShellGet
 Install-ModuleIfMissing -ModuleName ImportExcel
 
 # Import the module for use in the current session.
+Write-Host "`x1b[34mImportExcel module loaded.`x1b[0m" # <--- Modified line
 Import-Module -Name ImportExcel -ErrorAction Stop
-Write-Host "`x1b[34mImportExcel module loaded.`x1b[0m"
 
 # Define the name and path for the output Excel file.
 $excelFilePath = "pipeline_repo_info.xlsx"
 
-Write-Host "`x1b[34mStarting Excel file creation at $excelFilePath...`x1b[0m"
+Write-Host "`x1b[34mStarting Excel file creation at $excelFilePath...`x1b[0m" # <--- Modified line
 
 # --- Worksheet 1: Pipeline Info ---
 # Prepare the data for the first worksheet, explicitly casting to PSCustomObject.
@@ -122,4 +122,4 @@ $repoInfoData | Export-Excel -Path $excelFilePath `
                              -AutoSize `
                              -Append
 
-Write-Host "`x1b[34mExcel file '$excelFilePath' created successfully and ready for upload.`x1b[0m"
+Write-Host "`x1b[34mExcel file '$excelFilePath' created successfully and ready for upload.`x1b[0m" # <--- Modified line
