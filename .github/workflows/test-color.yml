@@ -1,0 +1,16 @@
+name: Run PowerShell Script
+
+on: [push, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest # También puedes usar windows-latest si prefieres un entorno Windows
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Run PowerShell Script
+      shell: pwsh
+      run: |
+        ./print-colors.ps1
