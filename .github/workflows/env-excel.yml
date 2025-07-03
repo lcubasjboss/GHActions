@@ -29,6 +29,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # --- DEBUG STEP: Verify github.run.started_at value ---
+      - name: Debug - Print workflow start time
+        shell: powershell
+        run: |
+          Write-Host "Value of github.run.started_at: '${{ github.run.started_at }}'"
+          # Also check its type and length to be sure
+          $runStartedAt = "${{ github.run.started_at }}"
+          Write-Host "Type of github.run.started_at: $($runStartedAt.GetType().Name)"
+          Write-Host "Length of github.run.started_at: $($runStartedAt.Length)"
+
       # Step 2: Execute the PowerShell script to create the Excel file.
       # The PowerShell script itself will now handle the installation of the 'Import-Excel' module.
       - name: Execute PowerShell Script and Create Excel
