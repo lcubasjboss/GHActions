@@ -34,8 +34,6 @@ Write-Output "${Yellow}Esta es la tercera línea en amarillo.${Reset}"
 # --- Configure ANSI Output ---
 # Ensure PowerShell is configured to interpret ANSI escape sequences.
 # This is typically needed for colored output in non-interactive sessions like CI/CD.
-$PSStyle.OutputRendering = 'Ansi'
-Write-Host "ANSI output rendering enabled."
 
 # --- Dependency Installation ---
 Write-Host "Checking for and installing required PowerShell modules..."

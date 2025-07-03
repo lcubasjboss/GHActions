@@ -4,6 +4,7 @@ name: Generate Pipeline & Repo Info Excel - Color
 # This workflow can be triggered manually from the GitHub Actions UI.
 # It now includes an 'environment' input parameter.
 on:
+  push:
   workflow_dispatch:
     inputs:
       environment:
