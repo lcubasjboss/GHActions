@@ -1,0 +1,41 @@
+# This workflow is named "Run PowerShell Script with Environment"
+name: Run PowerShell Script with Environment
+
+# This workflow can be triggered manually from the GitHub Actions UI.
+# It defines an input parameter 'environment'.
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Choose the target environment' # Description for the input
+        required: true                             # This input is mandatory
+        type: choice                               # The input will be a dropdown choice
+        options:                                   # Available options for the environment
+          - 'development'
+          - 'staging'
+          - 'production'
+        default: 'development'                     # Default selected option
+
+# Define a single job named 'run-script'
+jobs:
+  run-script:
+    # This job will run on a Windows-based runner, as PowerShell is primarily used on Windows.
+    runs-on: windows-latest
+
+    # Define the steps for this job
+    steps:
+      # Step 1: Checkout the repository code.
+      # This is necessary to access the PowerShell script from your repository.
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Run the PowerShell script.
+      # The 'shell: powershell' ensures the command is executed using PowerShell.
+      # We pass the 'environment' input from the workflow_dispatch as a script argument.
+      - name: Execute PowerShell Script
+        shell: powershell
+        run: |
+          # The script path is relative to the root of your repository.
+          # We pass the 'environment' input using the ${{ github.event.inputs.environment }} expression.
+          # The -Environment parameter name must match the parameter name in your PowerShell script.
+          ./scripts/show-environment.ps1 -Environment "${{ github.event.inputs.environment }}"

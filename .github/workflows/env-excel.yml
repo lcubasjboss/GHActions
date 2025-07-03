@@ -1,0 +1,53 @@
+# This workflow is named "Run PowerShell Script and Create Excel"
+name: Run PowerShell Script and Create Excel
+
+# This workflow can be triggered manually from the GitHub Actions UI.
+# It defines an input parameter 'environment'.
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Choose the target environment' # Description for the input
+        required: true                             # This input is mandatory
+        type: choice                               # The input will be a dropdown choice
+        options:                                   # Available options for the environment
+          - 'development'
+          - 'staging'
+          - 'production'
+        default: 'development'                     # Default selected option
+
+# Define a single job named 'create-excel-report'
+jobs:
+  create-excel-report:
+    # This job will run on a Windows-based runner.
+    runs-on: windows-latest
+
+    # Define the steps for this job
+    steps:
+      # Step 1: Checkout the repository code.
+      # This is essential to access your PowerShell script.
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Execute the PowerShell script to create the Excel file.
+      # The PowerShell script itself will now handle the installation of the 'Import-Excel' module.
+      - name: Execute PowerShell Script and Create Excel
+        shell: powershell # Specify PowerShell as the shell for this step
+        run: |
+          # The script path is relative to the root of your repository.
+          # We pass two parameters to the PowerShell script:
+          # -Environment: The environment chosen by the user via workflow_dispatch.
+          # -RunStartedAt: The exact timestamp when the GitHub Actions workflow run started.
+          # This allows the PowerShell script to calculate the duration from workflow start.
+          ./scripts/create-excel-report.ps1 `
+            -Environment "${{ github.event.inputs.environment }}" `
+            -RunStartedAt "${{ github.run.started_at }}"
+
+      # Step 3: Upload the generated Excel file as a workflow artifact.
+      # This makes the 'environment_report.xlsx' file available for download from the GitHub Actions UI.
+      - name: Upload Excel File as Artifact
+        uses: actions/upload-artifact@v4 # Use the upload-artifact action
+        with:
+          name: environment-report-excel # The name of the artifact (how it will appear for download)
+          path: environment_report.xlsx # The path to the file to upload (must match the file name in your script)
+          retention-days: 5 # How many days to retain this artifact before it's automatically deleted
