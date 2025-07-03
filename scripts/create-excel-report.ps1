@@ -16,6 +16,30 @@ param(
 # --- Dependency Installation ---
 Write-Host "Checking for and installing required PowerShell modules..."
 
+# Ensure PSGallery is registered as a trusted repository.
+# This often resolves issues where modules cannot be found.
+Write-Host "Checking/Registering PSGallery repository..."
+try {
+    # Check if PSGallery is already registered.
+    if (-not (Get-PSRepository -Name PSGallery -ErrorAction SilentlyContinue)) {
+        # If not registered, register it.
+        Register-PSRepository -Default -InstallationPolicy Trusted -ErrorAction Stop
+        Write-Host "PSGallery repository registered and trusted."
+    } else {
+        # If registered, ensure it's trusted.
+        Set-PSRepository -Name PSGallery -InstallationPolicy Trusted -ErrorAction Stop
+        Write-Host "PSGallery repository found and set to trusted."
+    }
+}
+catch {
+    Write-Error "Failed to register/trust PSGallery repository: $($_.Exception.Message)"
+    exit 1 # Exit with an error code if repository setup fails
+}
+
+# List repositories to confirm (for debugging purposes in logs)
+Write-Host "Available PowerShell Repositories:"
+Get-PSRepository | Format-Table -AutoSize
+
 # Check if PowerShellGet is installed and up to date.
 if (-not (Get-Module -ListAvailable -Name PowerShellGet)) {
     Write-Host "PowerShellGet module not found. Installing..."
