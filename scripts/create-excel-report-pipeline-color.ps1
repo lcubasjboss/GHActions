@@ -76,13 +76,13 @@ Install-ModuleIfMissing -ModuleName PowerShellGet
 Install-ModuleIfMissing -ModuleName ImportExcel
 
 # Import the module for use in the current session.
-Write-Host "`x1b[34mImportExcel module loaded.`x1b[0m" # <--- Modified line
+Write-Host "`e[34mImportExcel module loaded.`e[0m" # <--- Modified line
 Import-Module -Name ImportExcel -ErrorAction Stop
 
 # Define the name and path for the output Excel file.
 $excelFilePath = "pipeline_repo_info.xlsx"
 
-Write-Host "`x1b[34mStarting Excel file creation at $excelFilePath...`x1b[0m" # <--- Modified line
+Write-Host "`e[34mStarting Excel file creation at $excelFilePath...`e[0m" # <--- Modified line
 
 # --- Worksheet 1: Pipeline Info ---
 # Prepare the data for the first worksheet, explicitly casting to PSCustomObject.
@@ -94,7 +94,7 @@ $pipelineInfoData = @(
     }
 )
 
-Write-Host "`x1b[34mCreating 'Pipeline Info' worksheet...`x1b[0m"
+Write-Host "`e[34mCreating 'Pipeline Info' worksheet...`e[0m"
 $pipelineInfoData | Export-Excel -Path $excelFilePath `
                                  -WorksheetName "Pipeline Info" `
                                  -TableName "PipelineDetails" `
@@ -114,7 +114,7 @@ $repoInfoData = @(
     }
 )
 
-Write-Host "`x1b[34mCreating 'Repo Info' worksheet...`x1b[0m"
+Write-Host "`e[34mCreating 'Repo Info' worksheet...`e[0m"
 $repoInfoData | Export-Excel -Path $excelFilePath `
                              -WorksheetName "Repo Info" `
                              -TableName "RepoDetails" `
@@ -122,4 +122,4 @@ $repoInfoData | Export-Excel -Path $excelFilePath `
                              -AutoSize `
                              -Append
 
-Write-Host "`x1b[34mExcel file '$excelFilePath' created successfully and ready for upload.`x1b[0m" # <--- Modified line
+Write-Host "`e[34mExcel file '$excelFilePath' created successfully and ready for upload.`e[0m" # <--- Modified line
