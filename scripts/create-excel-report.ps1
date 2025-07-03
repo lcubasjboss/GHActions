@@ -16,6 +16,11 @@ param(
 # --- Dependency Installation ---
 Write-Host "Checking for and installing required PowerShell modules..."
 
+# Ensure TLS 1.2 is used for connections to the PowerShell Gallery.
+Write-Host "Setting TLS 1.2 security protocol..."
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 | [Net.SecurityProtocolType]::Tls11 | [Net.SecurityProtocolType]::Tls
+Write-Host "TLS security protocol set."
+
 # Ensure PSGallery is registered as a trusted repository.
 Write-Host "Checking/Registering PSGallery repository..."
 try {
@@ -37,20 +42,25 @@ catch {
 Write-Host "Available PowerShell Repositories:"
 Get-PSRepository | Format-Table -AutoSize
 
-# Force-reinstall PowerShellGet to ensure it's the latest and not corrupted.
-# This is often the root cause of "No match was found" errors.
-Write-Host "Attempting to ensure PowerShellGet is up-to-date and correctly installed..."
+# Force-reinstall PackageManagement and PowerShellGet to ensure they are the latest and not corrupted.
+Write-Host "Attempting to ensure PackageManagement and PowerShellGet are up-to-date and correctly installed..."
 try {
-    # Try to remove it first to ensure a clean install, ignore errors if it's not found or in use.
+    # Try to remove them first to ensure a clean install, ignore errors if not found or in use.
+    Remove-Module -Name PackageManagement -ErrorAction SilentlyContinue -Force
+    Uninstall-Module -Name PackageManagement -ErrorAction SilentlyContinue -Force
     Remove-Module -Name PowerShellGet -ErrorAction SilentlyContinue -Force
     Uninstall-Module -Name PowerShellGet -ErrorAction SilentlyContinue -Force
 
-    # Install PowerShellGet with  logging
-    Install-Module -Name PowerShellGet -Force -Scope CurrentUser -AllowClobber -Repository PSGallery -ErrorAction Stop -
+    # Install PackageManagement first
+    Install-Module -Name PackageManagement -Force -Scope CurrentUser -AllowClobber -Repository PSGallery -ErrorAction Stop
+    Write-Host "PackageManagement installed/updated successfully."
+
+    # Install PowerShellGet
+    Install-Module -Name PowerShellGet -Force -Scope CurrentUser -AllowClobber -Repository PSGallery -ErrorAction Stop
     Write-Host "PowerShellGet installed/updated successfully."
 }
 catch {
-    Write-Error "Failed to install/update PowerShellGet: $($_.Exception.Message)"
+    Write-Error "Failed to install/update PackageManagement or PowerShellGet: $($_.Exception.Message)"
     exit 1 # Exit with an error code if installation fails
 }
 
@@ -59,15 +69,15 @@ Write-Host "Attempting to find and install ImportExcel module..."
 try {
     # First, try to find the module to get diagnostic info.
     Write-Host "Searching for ImportExcel in PSGallery..."
-    $foundModule = Find-Module -Name ImportExcel -Repository PSGallery -ErrorAction SilentlyContinue -
+    $foundModule = Find-Module -Name ImportExcel -Repository PSGallery -ErrorAction SilentlyContinue
 
     if ($foundModule) {
         Write-Host "ImportExcel found in PSGallery. Version: $($foundModule.Version)"
         # If found, proceed with installation.
-        Install-Module -Name ImportExcel -Force -Scope CurrentUser -Repository PSGallery -ErrorAction Stop -
+        Install-Module -Name ImportExcel -Force -Scope CurrentUser -Repository PSGallery -ErrorAction Stop
         Write-Host "ImportExcel installed successfully."
     } else {
-        Write-Error "ImportExcel module was NOT found in PSGallery. This indicates a deeper issue with the repository or network."
+        Write-Error "ImportExcel module was NOT found in PSGallery after searching PSGallery. This indicates a deeper issue with the repository or network."
         exit 1 # Exit if the module cannot be found
     }
 }
@@ -103,7 +113,7 @@ $envData | Export-Excel -Path $excelFilePath `
                        -TableName "EnvironmentDetails" `
                        -TableStyle Light9 `
                        -ClearSheet `
-                       -AutoSize
+                       -AutoSize # Changed from -AutoFit
 
 # --- Worksheet 2: Git Branch and Commit Info ---
 # Get the short version of the Git commit SHA (first 7 characters).
@@ -122,7 +132,7 @@ $gitInfoData | Export-Excel -Path $excelFilePath `
                            -WorksheetName "Git Info" `
                            -TableName "GitDetails" `
                            -TableStyle Light9 `
-                           -AutoFit `
+                           -AutoSize ` # Changed from -AutoFit
                            -Append
 
 Write-Host "Excel file '$excelFilePath' created successfully and ready for upload."
