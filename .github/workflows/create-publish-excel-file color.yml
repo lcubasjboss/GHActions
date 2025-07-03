@@ -1,9 +1,20 @@
 # This workflow is named "Generate Pipeline & Repo Info Excel"
-name: Create Excel file and Publish it - Color
+name: Generate Pipeline & Repo Info Excel - Color
 
 # This workflow can be triggered manually from the GitHub Actions UI.
+# It now includes an 'environment' input parameter.
 on:
   workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Choose the target environment' # Description for the input
+        required: true                             # This input is mandatory
+        type: choice                               # The input will be a dropdown choice
+        options:                                   # Available options for the environment
+          - 'development'
+          - 'staging'
+          - 'production'
+        default: 'development'                     # Default selected option
 
 # Define the jobs (stages) for this workflow
 jobs:
@@ -12,7 +23,6 @@ jobs:
     runs-on: windows-latest # This job will run on a Windows-based runner.
     outputs:
       # Define outputs from this job if needed by subsequent jobs.
-      # For this case, we just need the artifact to be uploaded.
       excel_file_path: pipeline_repo_info.xlsx # Output the path to the created Excel file
 
     steps:
@@ -32,43 +42,48 @@ jobs:
             ${{ runner.os }}-powershell-modules- # Fallback key for partial match
 
       # Step 3: Execute the PowerShell script to create the Excel file.
+      # We are now passing the workflow name, run number, repository name, full commit SHA, AND the environment.
       - name: Execute PowerShell Script and Create Excel
         shell: powershell # Specify PowerShell as the shell for this step
         run: |
           # The script path is relative to the root of your repository.
-          ./scripts/create-excel-report-pipeline.ps1 `
+          # -PipelineName: The name of the currently running workflow.
+          # -RunNumber: The unique incremental number for each workflow run in a repository.
+          # -RepoName: The name of the GitHub repository (e.g., 'my-org/my-repo').
+          # -CommitSha: The full SHA of the commit that triggered the workflow.
+          # -Environment: The environment chosen by the user via workflow_dispatch.
+          ./scripts/create-excel-report-pipeline-color.ps1 `
             -PipelineName "${{ github.workflow }}" `
             -RunNumber "${{ github.run_number }}" `
             -RepoName "${{ github.repository }}" `
-            -CommitSha "${{ github.sha }}"
+            -CommitSha "${{ github.sha }}" `
+            -Environment "${{ github.event.inputs.environment }}" # <--- Added environment input
 
       # Step 4: Upload the generated Excel file as an artifact from this job.
-      # This makes it available for subsequent jobs (like 'publish_excel') to download.
       - name: Upload Excel File for Publishing
         uses: actions/upload-artifact@v4
         with:
-          name: excel-report-for-publish # A temporary name for the artifact within the pipeline
-          path: pipeline_repo_info.xlsx # The path to the file created by the script
-          retention-days: 1 # Retain for a short period as it's an intermediate artifact
+          name: excel-report-for-publish
+          path: pipeline_repo_info.xlsx
+          retention-days: 1
 
   # Stage 2: Publish the Excel file
   publish_excel:
-    runs-on: ubuntu-latest # Can use a lighter runner like Ubuntu if only publishing
-    needs: create_excel    # This job depends on 'create_excel' completing successfully
+    runs-on: ubuntu-latest
+    needs: create_excel
 
     steps:
       # Step 1: Download the Excel file artifact created by the 'create_excel' job.
       - name: Download Excel File Artifact
         uses: actions/download-artifact@v4
         with:
-          name: excel-report-for-publish # Must match the name used in the 'create_excel' job's upload step
-          path: . # Download to the current working directory of this job
+          name: excel-report-for-publish
+          path: .
 
       # Step 2: Publish the Excel file as a final workflow artifact.
-      # This is the final upload that makes it visible for download from the workflow run summary.
       - name: Publish Excel File
         uses: actions/upload-artifact@v4
         with:
-          name: pipeline-repo-info-excel # The final name for the downloadable artifact
-          path: pipeline_repo_info.xlsx # The path to the downloaded file
-          retention-days: 5 # How many days to retain this final artifact
+          name: pipeline-repo-info-excel
+          path: pipeline_repo_info.xlsx
+          retention-days: 5

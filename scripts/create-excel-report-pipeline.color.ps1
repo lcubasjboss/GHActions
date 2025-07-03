@@ -1,5 +1,5 @@
 # This PowerShell script creates an Excel file with two worksheets:
-# 1. 'Pipeline Info' with Pipeline Name and Number of Execution.
+# 1. 'Pipeline Info' with Pipeline Name, Number of Execution, and Environment.
 # 2. 'Repo Info' with Repository Name and Git SHA Short Version.
 # It also handles the installation of its required 'ImportExcel' module (leveraging caching for speed).
 
@@ -14,7 +14,10 @@ param(
     [string]$RepoName,
 
     [Parameter(Mandatory=$true)] # The full Git commit SHA.
-    [string]$CommitSha
+    [string]$CommitSha,
+
+    [Parameter(Mandatory=$true)] # The chosen environment.
+    [string]$Environment # <--- Added Environment parameter
 )
 
 # --- Dependency Installation ---
@@ -74,7 +77,7 @@ Install-ModuleIfMissing -ModuleName ImportExcel
 
 # Import the module for use in the current session.
 Import-Module -Name ImportExcel -ErrorAction Stop
-Write-Host "ImportExcel module loaded."
+Write-Host "`x1b[34mImportExcel module loaded.`x1b[0m"
 
 # Define the name and path for the output Excel file.
 $excelFilePath = "pipeline_repo_info.xlsx"
@@ -86,12 +89,12 @@ Write-Host "`x1b[34mStarting Excel file creation at $excelFilePath...`x1b[0m"
 $pipelineInfoData = @(
     [PSCustomObject]@{
         "Pipeline Name"       = $PipelineName;
-        "Number of Execution" = $RunNumber
+        "Number of Execution" = $RunNumber;
+        "Environment"         = $Environment # <--- Added Environment column
     }
 )
 
-# Use ANSI escape codes for blue color (ESC[34m for blue, ESC[0m for reset)
-Write-Host "`x1b[34mCreating 'Pipeline Info' worksheet...`x1b[0m" # <--- Changed line
+Write-Host "`x1b[34mCreating 'Pipeline Info' worksheet...`x1b[0m"
 $pipelineInfoData | Export-Excel -Path $excelFilePath `
                                  -WorksheetName "Pipeline Info" `
                                  -TableName "PipelineDetails" `
@@ -111,8 +114,7 @@ $repoInfoData = @(
     }
 )
 
-# Use ANSI escape codes for blue color (ESC[34m for blue, ESC[0m for reset)
-Write-Host "`x1b[34mCreating 'Repo Info' worksheet...`x1b[0m" # <--- Changed line
+Write-Host "`x1b[34mCreating 'Repo Info' worksheet...`x1b[0m"
 $repoInfoData | Export-Excel -Path $excelFilePath `
                              -WorksheetName "Repo Info" `
                              -TableName "RepoDetails" `
@@ -120,4 +122,4 @@ $repoInfoData | Export-Excel -Path $excelFilePath `
                              -AutoSize `
                              -Append
 
-Write-Host "Excel file '$excelFilePath' created successfully and ready for upload."
+Write-Host "`x1b[34mExcel file '$excelFilePath' created successfully and ready for upload.`x1b[0m"
