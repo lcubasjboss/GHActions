@@ -13,8 +13,8 @@ jobs:
     - name: Run PowerShell Script outputs
       shell: pwsh
       run: |
-       Write-Host "Install" -ForegroundColor Yellow
-       Write-Host "Install" -ForegroundColor Blue
+       Write-Host "[INFO] Install" -ForegroundColor Yellow
+       Write-Host "[INFO] Install" -ForegroundColor Blue
 
     - name: Run PowerShell Script
       shell: pwsh
