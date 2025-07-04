@@ -17,3 +17,10 @@ $Reset = "`e[0m" # Código para resetear el color a por defecto
 Write-Output "${Blue}Esta es la primera línea en azul.${Reset}"
 Write-Output "${Red}Esta es la segunda línea en rojo.${Reset}"
 Write-Output "${Yellow}Esta es la tercera línea en amarillo.${Reset}"
+
+# Imprimir las líneas usando los códigos ANSI
+Write-Host "${Red}Esta es la segunda línea en rojo.${Reset}"
+Write-Host "${Yellow}Esta es la tercera línea en amarillo.${Reset}"
+
+$timestamp= Get-Date -Format "yyyyMMdd_HHmmss"
+Write-Host "##vso[tas.setvariable variable=timestamp]$timestamp"
