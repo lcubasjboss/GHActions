@@ -10,7 +10,14 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
+    - name: Run PowerShell Script outputs
+      shell: pwsh
+      run: |
+       Write-Host "Install" -ForegroundColor Yellow
+       Write-Host "Install" -ForegroundColor Blue
+
     - name: Run PowerShell Script
       shell: pwsh
       run: |
         ./scripts/print-colors.ps1
+
